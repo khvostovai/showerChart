@@ -1,13 +1,11 @@
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisSpace;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.SamplingXYLineRenderer;
 import org.jfree.data.Range;
-import org.jfree.data.RangeType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -27,6 +25,8 @@ public class MyApplication extends JFrame implements ActionListener{
     private CombinedDomainXYPlot plots;
     private ChartPanel center;
     private JPanel eastPanel;
+    private JLabel fileName;
+    private JCheckBox fullSet;
 
     private MyApplication(){
         //init
@@ -55,6 +55,7 @@ public class MyApplication extends JFrame implements ActionListener{
         pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mainPanel.add(pane, BorderLayout.EAST);
 
+        this.pack();
         this.add(mainPanel);
     }
 
@@ -97,10 +98,13 @@ public class MyApplication extends JFrame implements ActionListener{
     private JPanel getNorthPanel() {
         JPanel north = new JPanel();
         north.setLayout(new FlowLayout());
+        fileName = new JLabel("Open file: ");
         JButton selectFileButon = new JButton("select file");
         selectFileButon.addActionListener(this);
-        north.add(new JLabel("Open file: "));
+        fullSet = new JCheckBox("Full set");
+        north.add(fileName);
         north.add(selectFileButon);
+        north.add(fullSet);
         return north;
     }
 
@@ -117,7 +121,8 @@ public class MyApplication extends JFrame implements ActionListener{
             dialog.setVisible(true);
             if (dialog.getFile() != null) {
                 try {
-                    plotArrayList = seriesToPlots(Parser.parse(dialog.getDirectory() + dialog.getFile()));
+                    plotArrayList = seriesToPlots(Parser.parse(dialog.getDirectory() + dialog.getFile(), fullSet.isSelected()));
+                    fileName.setText("File: "+dialog.getFile());
                     fillEastPanel(eastPanel);
                     this.revalidate();
                     this.repaint();
@@ -136,6 +141,10 @@ public class MyApplication extends JFrame implements ActionListener{
             NumberAxis axis = new NumberAxis();
             axis.setAutoRangeIncludesZero(false);
             axis.setDefaultAutoRange(new Range(item.getMinY(), item.getMaxY()));
+            if (item.getMaxY() - item.getMinY() <= 1.0) {
+                axis.setLowerMargin(0.1);
+                axis.setUpperMargin(0.1);
+            }
             plot.setRangeAxis(axis);
             SamplingXYLineRenderer renderer = new SamplingXYLineRenderer();
             renderer.setSeriesStroke(0,new BasicStroke(2.0f));

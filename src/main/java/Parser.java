@@ -3,6 +3,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.data.xy.XYSeries;
 
 import java.io.FileInputStream;
@@ -14,14 +16,18 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 class Parser {
-    static ArrayList<XYSeries> parse(String fileName) throws ParseException, IOException {
+    static ArrayList<XYSeries> parse(String fileName, boolean full) throws ParseException, IOException {
         ArrayList<XYSeries> series = new ArrayList<>();
         FileInputStream in = new FileInputStream(fileName);
-        HSSFWorkbook wb = new HSSFWorkbook(in);
+        Workbook wb;
+        // for old format version
+        if (fileName.endsWith(".xls")) wb = new HSSFWorkbook(in);
+        //for new format version
+        else if(fileName.endsWith(".xlsx")) wb = new XSSFWorkbook(in);
+        // for unknown format version
+        else throw new IOException("format is not valid");
 
-        int lastCell = 0;
         int lastRow;
-
         //get firs sheet
         Sheet sheet = wb.getSheetAt(0);
 
@@ -36,8 +42,6 @@ class Parser {
 
             if (!iterator.hasNext() || cell.getStringCellValue().equals(""))
                 break;
-            else
-                lastCell++;
         }
 
         // add data to series into data set
@@ -71,33 +75,34 @@ class Parser {
                 else series.get(j).add(demain, null);
             }
         }
-        return filterSeries(series);
+        return filterSeries(series, full);
     }
 
-    private static ArrayList<XYSeries> filterSeries(ArrayList<XYSeries> series) {
+    private static ArrayList<XYSeries> filterSeries(ArrayList<XYSeries> series, boolean full) {
         ArrayList<XYSeries> tmp = new ArrayList<>();
+        ArrayList<XYSeries> tmp2 = new ArrayList<>();
         for (XYSeries item : series) {
             switch ((String)item.getKey()) {
                 case "Time" :
                     tmp.add(item);
                     item.setKey("Время");
                     break;
-// output from 1 channel
                 case "04.103.020" :
                     tmp.add(item);
                     item.setKey("ГС2 давление");
                     break;
+// output from 1 channel
                 case "07.031.001" :
                     tmp.add(item);
                     item.setKey("Угол ПОШ 1 канал");
                     break;
                 case "07.031.002" :
                     tmp.add(item);
-                    item.setKey("лев РР 1 канал");
+                    item.setKey("РР лев 1 канал");
                     break;
                 case "07.031.003" :
                     tmp.add(item);
-                    item.setKey("прав РР 1 канал");
+                    item.setKey("РР прав 1 канал");
                     break;
                 case "07.031.004" :
                     tmp.add(item);
@@ -246,11 +251,11 @@ class Parser {
                     break;
                 case "07.032.002" :
                     tmp.add(item);
-                    item.setKey("лев РР 2 канал");
+                    item.setKey("РР лев 2 канал");
                     break;
                 case "07.032.003" :
                     tmp.add(item);
-                    item.setKey("прав РР 2 канал");
+                    item.setKey("РР прав 2 канал");
                     break;
                 case "07.032.004" :
                     tmp.add(item);
@@ -393,10 +398,42 @@ class Parser {
                     item.setKey("требуется ТО 2 канал");
                     break;
 // input message from SUOSO
-
-
+                case "14.02.112.001" :
+                    tmp.add(item);
+                    item.setKey("1 СУОСО исправность ГС2");
+                    break;
+                case "14.02.211.001" :
+                    tmp.add(item);
+                    item.setKey("2 СУОСО исправность ГС2");
+                    break;
+                case "07.112.038" :
+                    tmp.add(item);
+                    item.setKey("1 СУОСО ЛООШ обжата");
+                    break;
+                case "07.211.038" :
+                    tmp.add(item);
+                    item.setKey("1 СУОСО ЛООШ обжата");
+                    break;
+                case "07.112.039" :
+                    tmp.add(item);
+                    item.setKey("1 СУОСО ПООШ обжата");
+                    break;
+                case "07.211.039" :
+                    tmp.add(item);
+                    item.setKey("1 СУОСО ПООШ обжата");
+                    break;
+                case "07.112.040" :
+                    tmp.add(item);
+                    item.setKey("1 СУОСО ПОШ обжатие");
+                    break;
+                case "07.211.040" :
+                    tmp.add(item);
+                    item.setKey("2 СУОСО ПОШ обжатие");
+                    break;
 
                 default:
+                    if(full)
+                        tmp2.add(item);
                     break;
             }
         }
@@ -406,6 +443,7 @@ class Parser {
                 return ((String) s1.getKey()).compareTo((String) s2.getKey());
             }
         });
+        tmp.addAll(tmp2);
         return tmp;
     }
 
