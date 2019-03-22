@@ -9,19 +9,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
-/**
- * Created by khvostovai on 18.03.2019.
- */
-public class Parser {
-    public static ArrayList<XYSeries> parse(String fileName) throws ParseException, IOException {
-        ArrayList<XYSeries> series = new ArrayList<XYSeries>();
+class Parser {
+    static ArrayList<XYSeries> parse(String fileName) throws ParseException, IOException {
+        ArrayList<XYSeries> series = new ArrayList<>();
         FileInputStream in = new FileInputStream(fileName);
         HSSFWorkbook wb = new HSSFWorkbook(in);
 
         int lastCell = 0;
-        int lastRow = 0;
+        int lastRow;
 
         //get firs sheet
         Sheet sheet = wb.getSheetAt(0);
@@ -76,7 +75,7 @@ public class Parser {
     }
 
     private static ArrayList<XYSeries> filterSeries(ArrayList<XYSeries> series) {
-        ArrayList<XYSeries> tmp = new ArrayList<XYSeries>();
+        ArrayList<XYSeries> tmp = new ArrayList<>();
         for (XYSeries item : series) {
             switch ((String)item.getKey()) {
                 case "Time" :
@@ -401,6 +400,12 @@ public class Parser {
                     break;
             }
         }
+        Collections.sort(tmp, new Comparator<XYSeries>() {
+            @Override
+            public int compare(XYSeries  s1, XYSeries s2) {
+                return ((String) s1.getKey()).compareTo((String) s2.getKey());
+            }
+        });
         return tmp;
     }
 
