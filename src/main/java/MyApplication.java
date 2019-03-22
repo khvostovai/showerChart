@@ -1,11 +1,13 @@
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisSpace;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.SamplingXYLineRenderer;
 import org.jfree.data.Range;
+import org.jfree.data.RangeType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -26,19 +28,17 @@ public class MyApplication extends JFrame implements ActionListener{
     private ChartPanel center;
     private JPanel eastPanel;
 
-    public MyApplication(){
+    private MyApplication(){
         //init
         super();
-        //seriesArrayList = setTestSeries();
-        //plotArrayList = seriesToPlots(seriesArrayList);
-        plotArrayList = new ArrayList<XYPlot>();
+        plotArrayList = new ArrayList<>();
         plots = new CombinedDomainXYPlot();
-        //plots = getMultiPlot();
         chart = new JFreeChart(plots);
         dialog = new FileDialog(this, "MS-21 shit", FileDialog.LOAD);
         center = new ChartPanel(chart);
         eastPanel = new JPanel();
         eastPanel.setLayout(new BoxLayout(eastPanel,BoxLayout.Y_AXIS));
+
         fillEastPanel(eastPanel);
         //some settings
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,9 +64,8 @@ public class MyApplication extends JFrame implements ActionListener{
             checkBox.addActionListener(this);
             panel.add(checkBox);
         }
-        Dimension dimension = panel.getPreferredSize();
-        dimension.width = 300;
-        panel.setPreferredSize(dimension);
+        panel.revalidate();
+        panel.repaint();
     }
 
 
@@ -86,7 +85,9 @@ public class MyApplication extends JFrame implements ActionListener{
             plot.setDataset(new XYSeriesCollection(series));
             NumberAxis axis = new NumberAxis();
             plot.setRangeAxis(new NumberAxis());
-            plot.setRenderer(new SamplingXYLineRenderer());
+            SamplingXYLineRenderer renderer = new SamplingXYLineRenderer();
+            renderer.setSeriesStroke(0, new BasicStroke(2.0f));
+            plot.setRenderer(renderer);
             multiPlot.add(plot);
         }
         multiPlot.setOrientation(PlotOrientation.VERTICAL);
@@ -118,29 +119,34 @@ public class MyApplication extends JFrame implements ActionListener{
                 try {
                     plotArrayList = seriesToPlots(Parser.parse(dialog.getDirectory() + dialog.getFile()));
                     fillEastPanel(eastPanel);
-                } catch (ParseException e) {
-                    JOptionPane.showMessageDialog(null, "Parse Error!!!");
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(null, "File Error!!!");
+                    this.revalidate();
+                    this.repaint();
+                } catch (ParseException | IOException e) {
+                    JOptionPane.showMessageDialog(null, e.toString());
                 }
             }
         }
     }
 
     private ArrayList<XYPlot> seriesToPlots(ArrayList<XYSeries> series) {
-        ArrayList<XYPlot> plotsSet = new ArrayList<XYPlot>();
+        ArrayList<XYPlot> plotsSet = new ArrayList<>();
         for (XYSeries item : series) {
             XYPlot plot = new XYPlot();
             plot.setDataset(new XYSeriesCollection(item));
             NumberAxis axis = new NumberAxis();
             axis.setAutoRangeIncludesZero(false);
-            axis.setAutoRange(true);
+            axis.setDefaultAutoRange(new Range(item.getMinY(), item.getMaxY()));
             plot.setRangeAxis(axis);
-            plot.setRenderer(new SamplingXYLineRenderer());
+            SamplingXYLineRenderer renderer = new SamplingXYLineRenderer();
+            renderer.setSeriesStroke(0,new BasicStroke(2.0f));
+            plot.setRenderer(renderer);
             plotsSet.add(plot);
         }
-        if(series.size() > 0)
-            plots.getDomainAxis().setRange(series.get(0).getMinX(),series.get(0).getMaxX());
+        if(series.size() > 0) {
+            NumberAxis axis = (NumberAxis) plots.getDomainAxis();
+            axis.setAutoRangeIncludesZero(false);
+            axis.setDefaultAutoRange(new Range(series.get(0).getMinX(), series.get(0).getMaxX()));
+        }
         return plotsSet;
     }
 
@@ -152,7 +158,7 @@ public class MyApplication extends JFrame implements ActionListener{
             x2.add(i, i * i);
             x3.add(i, i * i * i);
         }
-        ArrayList<XYSeries> arrayList = new ArrayList<XYSeries>();
+        ArrayList<XYSeries> arrayList = new ArrayList<>();
         arrayList.add(x2);
         arrayList.add(x3);
         return arrayList;
