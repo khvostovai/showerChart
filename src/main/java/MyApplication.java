@@ -39,24 +39,28 @@ public class MyApplication extends JFrame implements ActionListener{
         eastPanel = new JPanel();
         eastPanel.setLayout(new BoxLayout(eastPanel,BoxLayout.Y_AXIS));
 
-        fillEastPanel(eastPanel);
-        //some settings
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(800,600);
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dim.width/2 - this.getWidth()/2, dim.height/2 - this.getHeight()/2);
-        //Layout
+        //fillEastPanel(eastPanel);
+
+        //main panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
+        //add north panel
         mainPanel.add(getNorthPanel(), BorderLayout.NORTH);
+        //add central panel
         mainPanel.add(center, BorderLayout.CENTER);
-
+        //create and add east panel
         JScrollPane pane = new JScrollPane(eastPanel);
         pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mainPanel.add(pane, BorderLayout.EAST);
-
-        this.pack();
+        //add main panel to Frame
         this.add(mainPanel);
+
+        //some settings
+        this.pack();
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        //set frame to center of screen
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2 - this.getWidth()/2, dim.height/2 - this.getHeight()/2);
     }
 
     private void fillEastPanel(JPanel panel) {
