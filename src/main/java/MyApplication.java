@@ -27,6 +27,8 @@ public class MyApplication extends JFrame implements ActionListener{
     private JPanel eastPanel;
     private JLabel fileName;
     private JCheckBox fullSet;
+    private Parser parser;
+    private ArrayList<MyXYSeries> mySeriesArrayList;
 
     private MyApplication(){
         //init
@@ -38,8 +40,7 @@ public class MyApplication extends JFrame implements ActionListener{
         center = new ChartPanel(chart);
         eastPanel = new JPanel();
         eastPanel.setLayout(new BoxLayout(eastPanel,BoxLayout.Y_AXIS));
-
-        //fillEastPanel(eastPanel);
+        parser = null;
 
         //main panel
         JPanel mainPanel = new JPanel();
@@ -63,41 +64,11 @@ public class MyApplication extends JFrame implements ActionListener{
         this.setLocation(dim.width/2 - this.getWidth()/2, dim.height/2 - this.getHeight()/2);
     }
 
-    private void fillEastPanel(JPanel panel) {
-        for (XYPlot plot : plotArrayList) {
-            MyCheckBox checkBox = new MyCheckBox(plot);
-            checkBox.addActionListener(this);
-            panel.add(checkBox);
-        }
-        panel.revalidate();
-        panel.repaint();
-    }
-
-
     public static void main(String[] args) {
         MyApplication myApplication = new MyApplication();
         myApplication.setVisible(true);
     }
 
-    private CombinedDomainXYPlot getMultiPlot() {
-        // ensure seriesArrayList is not null
-        if(seriesArrayList == null) return new CombinedDomainXYPlot();
-
-        CombinedDomainXYPlot multiPlot = new CombinedDomainXYPlot();
-        // for each series of ArrayList
-        for (XYSeries series : seriesArrayList) {
-            XYPlot plot = new XYPlot();
-            plot.setDataset(new XYSeriesCollection(series));
-            NumberAxis axis = new NumberAxis();
-            plot.setRangeAxis(new NumberAxis());
-            SamplingXYLineRenderer renderer = new SamplingXYLineRenderer();
-            renderer.setSeriesStroke(0, new BasicStroke(2.0f));
-            plot.setRenderer(renderer);
-            multiPlot.add(plot);
-        }
-        multiPlot.setOrientation(PlotOrientation.VERTICAL);
-        return multiPlot;
-    }
 
     private JPanel getNorthPanel() {
         JPanel north = new JPanel();
@@ -112,7 +83,18 @@ public class MyApplication extends JFrame implements ActionListener{
         return north;
     }
 
+    private void fillEastPanel(JPanel panel) {
+        for (XYPlot plot : plotArrayList) {
+            MyCheckBox checkBox = new MyCheckBox(plot);
+            checkBox.addActionListener(this);
+            panel.add(checkBox);
+        }
+        panel.revalidate();
+        panel.repaint();
+    }
+
     public void actionPerformed(ActionEvent actionEvent) {
+        //event for check Boxes
         if (actionEvent.getSource().getClass() == MyCheckBox.class)
         {
             MyCheckBox source = (MyCheckBox) actionEvent.getSource();
@@ -121,13 +103,19 @@ public class MyApplication extends JFrame implements ActionListener{
             else
                 plots.remove(source.getPlot());
         }
+        //event for open Button
         else if(actionEvent.getSource().getClass() == JButton.class) {
             dialog.setVisible(true);
             if (dialog.getFile() != null) {
                 try {
-                    plotArrayList = seriesToPlots(Parser.parse(dialog.getDirectory() + dialog.getFile(), fullSet.isSelected()));
+                    //create parser
+                    parser = new Parser(dialog.getDirectory()+dialog.getFile());
+                    //first of all read title of series
+                    plotArrayList = seriesToPlots(parser.parseTitle(fullSet.isSelected()));
+                    //set file name to label
                     fileName.setText("File: "+dialog.getFile());
                     fillEastPanel(eastPanel);
+                    //repaint all
                     this.revalidate();
                     this.repaint();
                 } catch (ParseException | IOException e) {
@@ -137,7 +125,7 @@ public class MyApplication extends JFrame implements ActionListener{
         }
     }
 
-    private ArrayList<XYPlot> seriesToPlots(ArrayList<XYSeries> series) {
+    private ArrayList<XYPlot> seriesToPlots(ArrayList<MyXYSeries> series) {
         ArrayList<XYPlot> plotsSet = new ArrayList<>();
         for (XYSeries item : series) {
             XYPlot plot = new XYPlot();

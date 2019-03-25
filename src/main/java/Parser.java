@@ -16,6 +16,45 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 class Parser {
+    //collection of my series
+    private ArrayList<MyXYSeries> series;
+    //input stream for file
+    private FileInputStream in;
+    // work book
+    private Workbook wb;
+
+    public Parser(String fileName) throws IOException {
+        series = new ArrayList<>();
+        in = new FileInputStream(fileName);
+
+        // for old format version
+        if (fileName.endsWith(".xls")) wb = new HSSFWorkbook(in);
+            //for new format version
+        else if(fileName.endsWith(".xlsx")) wb = new XSSFWorkbook(in);
+            // for unknown format version
+        else throw new IOException("format is not valid");
+    }
+
+    public ArrayList<MyXYSeries> parseTitle(boolean fullSet) throws ParseException {
+        //get firs sheet
+        Sheet sheet = wb.getSheetAt(0);
+
+        // add title series to data set
+        Row seriesTitle = sheet.getRow(2);
+
+        for (int i = 0; i < seriesTitle.getLastCellNum(); i++) {
+            Cell cell = seriesTitle.getCell(i);
+            if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                series.add(new MyXYSeries(cell.getStringCellValue(), i));
+            } else throw new ParseException("Can't read title of Series " + cell.getColumnIndex(), 1);
+            // empty cell
+            if (cell.getStringCellValue().equals(""))
+                break;
+        }
+
+        return filterSeries(series, fullSet);
+    }
+
     static ArrayList<XYSeries> parse(String fileName, boolean full) throws ParseException, IOException {
         ArrayList<XYSeries> series = new ArrayList<>();
         FileInputStream in = new FileInputStream(fileName);
@@ -75,13 +114,13 @@ class Parser {
                 else series.get(j).add(demain, null);
             }
         }
-        return filterSeries(series, full);
+        return series;
     }
 
-    private static ArrayList<XYSeries> filterSeries(ArrayList<XYSeries> series, boolean full) {
-        ArrayList<XYSeries> tmp = new ArrayList<>();
-        ArrayList<XYSeries> tmp2 = new ArrayList<>();
-        for (XYSeries item : series) {
+    private static ArrayList<MyXYSeries> filterSeries(ArrayList<MyXYSeries> series, boolean full) {
+        ArrayList<MyXYSeries> tmp = new ArrayList<>();
+        ArrayList<MyXYSeries> tmp2 = new ArrayList<>();
+        for (MyXYSeries item : series) {
             switch ((String)item.getKey()) {
                 case "Time" :
                     tmp.add(item);
