@@ -99,6 +99,12 @@ public class MyApplication extends JFrame implements ActionListener{
         {
             MyCheckBox source = (MyCheckBox) actionEvent.getSource();
             if (source.isSelected()) {
+                MyXYSeries series = (MyXYSeries) ((XYSeriesCollection)source.getPlot().getDataset()).getSeries(0);
+                try {
+                    parser.updateMyXYSeries(series);
+                } catch (ParseException e) {
+                    JOptionPane.showMessageDialog(null, e.getMessage());
+                }
                 plots.add(source.getPlot());
             }
             else

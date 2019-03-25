@@ -74,22 +74,16 @@ class Parser {
             row = sheet.getRow(i);
             // if at cell numeric value
             double demain;
-            if (row.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                demain =  row.getCell(0).getNumericCellValue();
-            }
-            else if(row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING) {
+            if(row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING) {
                 String string = row.getCell(0).getStringCellValue().replace(',','.');
                 demain = Double.parseDouble(string);
             }
-            else throw new ParseException("Unknow format of Cell 0 row " + i, 1);
+            else throw new ParseException("Unknown format of Cell 0 row " + i, 1);
 
             // iterate on cells
             cell = row.getCell(series.getNumberOfColumn());
-            // if at cell numeric value
-            if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                series.add(demain, cell.getNumericCellValue());
-            }
-            else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+
+            if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
                 String str = cell.getStringCellValue().replace(',','.');
                 if (str.equals("")) series.add(demain,null);
                 else series.add(demain, Double.parseDouble(str));
