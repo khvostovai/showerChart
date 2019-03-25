@@ -55,6 +55,48 @@ class Parser {
         return filterSeries(series, fullSet);
     }
 
+    public void updateMyXYSeries(MyXYSeries series) throws ParseException {
+        //erase series
+        series.clear();
+        //get first sheet
+        Sheet sheet = wb.getSheetAt(0);
+        //add description
+        Row row = sheet.getRow(3);
+        Cell cell = row.getCell(series.getNumberOfColumn());
+        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            series.setDescription(cell.getStringCellValue());
+        }
+
+        // add data to series into data set
+        // iterate on rows
+        int lastRow = sheet.getLastRowNum();
+        for (int i = 6; i < lastRow; i++) {
+            row = sheet.getRow(i);
+            // if at cell numeric value
+            double demain;
+            if (row.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                demain =  row.getCell(0).getNumericCellValue();
+            }
+            else if(row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING) {
+                String string = row.getCell(0).getStringCellValue().replace(',','.');
+                demain = Double.parseDouble(string);
+            }
+            else throw new ParseException("Unknow format of Cell 0 row " + i, 1);
+
+            // iterate on cells
+            cell = row.getCell(series.getNumberOfColumn());
+            // if at cell numeric value
+            if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                series.add(demain, cell.getNumericCellValue());
+            }
+            else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                String str = cell.getStringCellValue().replace(',','.');
+                if (str.equals("")) series.add(demain,null);
+                else series.add(demain, Double.parseDouble(str));
+            }
+            else series.add(demain, null);
+        }
+    }
     static ArrayList<XYSeries> parse(String fileName, boolean full) throws ParseException, IOException {
         ArrayList<XYSeries> series = new ArrayList<>();
         FileInputStream in = new FileInputStream(fileName);

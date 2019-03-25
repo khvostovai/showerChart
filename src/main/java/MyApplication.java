@@ -98,8 +98,9 @@ public class MyApplication extends JFrame implements ActionListener{
         if (actionEvent.getSource().getClass() == MyCheckBox.class)
         {
             MyCheckBox source = (MyCheckBox) actionEvent.getSource();
-            if (source.isSelected())
+            if (source.isSelected()) {
                 plots.add(source.getPlot());
+            }
             else
                 plots.remove(source.getPlot());
         }
@@ -130,6 +131,7 @@ public class MyApplication extends JFrame implements ActionListener{
         for (XYSeries item : series) {
             XYPlot plot = new XYPlot();
             plot.setDataset(new XYSeriesCollection(item));
+
             NumberAxis axis = new NumberAxis();
             axis.setAutoRangeIncludesZero(false);
             axis.setDefaultAutoRange(new Range(item.getMinY(), item.getMaxY()));
