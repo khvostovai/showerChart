@@ -38,6 +38,7 @@ public class MyApplication extends JFrame implements ActionListener{
         chart = new JFreeChart(plots);
         dialog = new FileDialog(this, "MS-21 shit", FileDialog.LOAD);
         center = new ChartPanel(chart);
+        center.setRangeZoomable(false);
         eastPanel = new JPanel();
         eastPanel.setLayout(new BoxLayout(eastPanel,BoxLayout.Y_AXIS));
         parser = null;
@@ -48,9 +49,12 @@ public class MyApplication extends JFrame implements ActionListener{
         //add north panel
         mainPanel.add(getNorthPanel(), BorderLayout.NORTH);
         //add central panel
-        mainPanel.add(center, BorderLayout.CENTER);
+        JScrollPane pane = new JScrollPane(center);
+        pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        mainPanel.add(pane, BorderLayout.CENTER);
         //create and add east panel
-        JScrollPane pane = new JScrollPane(eastPanel);
+        pane = new JScrollPane(eastPanel);
         pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mainPanel.add(pane, BorderLayout.EAST);
         //add main panel to Frame
