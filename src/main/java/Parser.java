@@ -13,19 +13,18 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 
 class Parser {
     //collection of my series
     private ArrayList<MyXYSeries> series;
-    //input stream for file
-    private FileInputStream in;
-    // work book
+    //work book
     private Workbook wb;
+    //sheet
+    private Sheet sheet;
 
     public Parser(String fileName) throws IOException {
         series = new ArrayList<>();
-        in = new FileInputStream(fileName);
+        FileInputStream in = new FileInputStream(fileName);
 
         // for old format version
         if (fileName.endsWith(".xls")) wb = new HSSFWorkbook(in);
@@ -33,6 +32,8 @@ class Parser {
         else if(fileName.endsWith(".xlsx")) wb = new XSSFWorkbook(in);
             // for unknown format version
         else throw new IOException("format is not valid");
+
+        sheet = wb.getSheetAt(0);
     }
 
     public ArrayList<MyXYSeries> parseTitle(boolean fullSet) throws ParseException {
@@ -58,99 +59,64 @@ class Parser {
     public void updateMyXYSeries(MyXYSeries series) throws ParseException {
         //erase series
         series.clear();
-        //get first sheet
-        Sheet sheet = wb.getSheetAt(0);
+
         //add description
-        Row row = sheet.getRow(3);
-        Cell cell = row.getCell(series.getNumberOfColumn());
+        Cell cell = sheet.getRow(3).getCell(series.getNumberOfColumn());
         if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
             series.setDescription(cell.getStringCellValue());
         }
 
+        // time sample
+        double deltaT;
+        Number t1 = parseDoubleCellValue(10,0);
+        Number t2 = parseDoubleCellValue(11, 0);
+        if(t1!=null && t2!=null)
+            deltaT = (double)t2 -(double)t1;
+        else
+            throw new ParseException("Can't parse time sample at 10,11 rows", 1);
+
+        double gap = 0.0;
+
         // add data to series into data set
         // iterate on rows
+        Number demain, value, lastValue = 0.0;
         int lastRow = sheet.getLastRowNum();
         for (int i = 6; i < lastRow; i++) {
-            row = sheet.getRow(i);
-            // if at cell numeric value
-            double demain;
-            if(row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING) {
-                String string = row.getCell(0).getStringCellValue().replace(',','.');
-                demain = Double.parseDouble(string);
-            }
-            else throw new ParseException("Unknown format of Cell 0 row " + i, 1);
+            //get value for series
+            demain = parseDoubleCellValue(i, 0);
+            value = parseDoubleCellValue(i, series.getNumberOfColumn());
 
-            // iterate on cells
-            cell = row.getCell(series.getNumberOfColumn());
-
-            if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                String str = cell.getStringCellValue().replace(',','.');
-                if (str.equals("")) series.add(demain,null);
-                else series.add(demain, Double.parseDouble(str));
+            //isn't value
+            if(value == null){
+                gap += deltaT;
+                //gap great then 300 ms
+                if(gap > 0.3)
+                    series.add(demain, null);
+                //gap less then 300 ms
+                else
+                    series.add(demain, lastValue);
             }
-            else series.add(demain, null);
+            //value is number
+            else{
+                gap = 0.0;
+                series.add(demain, value);
+                lastValue = value;
+            }
         }
     }
-    static ArrayList<XYSeries> parse(String fileName, boolean full) throws ParseException, IOException {
-        ArrayList<XYSeries> series = new ArrayList<>();
-        FileInputStream in = new FileInputStream(fileName);
-        Workbook wb;
-        // for old format version
-        if (fileName.endsWith(".xls")) wb = new HSSFWorkbook(in);
-        //for new format version
-        else if(fileName.endsWith(".xlsx")) wb = new XSSFWorkbook(in);
-        // for unknown format version
-        else throw new IOException("format is not valid");
 
-        int lastRow;
-        //get firs sheet
-        Sheet sheet = wb.getSheetAt(0);
-
-        // add title series to dataset
-        Row seriesTitle = sheet.getRow(2);
-        Iterator<Cell> iterator = seriesTitle.cellIterator();
-        while (true) {
-            Cell cell = iterator.next();
-            if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                series.add(new XYSeries(cell.getStringCellValue()));
-            } else throw new ParseException("Can't read title of Series " + cell.getColumnIndex(), 1);
-
-            if (!iterator.hasNext() || cell.getStringCellValue().equals(""))
-                break;
+    private Number parseDoubleCellValue(int row, int col) {
+        Cell cell = sheet.getRow(row).getCell(col);
+        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            return cell.getNumericCellValue();
         }
-
-        // add data to series into data set
-        // iterate on rows
-        lastRow = sheet.getLastRowNum();
-        for (int i = 6; i < lastRow; i++) {
-            Row row = sheet.getRow(i);
-            // if at cell numeric value
-            double demain;
-            if (row.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                demain =  row.getCell(0).getNumericCellValue();
-            }
-            else if(row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING) {
-                String string = row.getCell(0).getStringCellValue().replace(',','.');
-                demain = Double.parseDouble(string);
-            }
-            else throw new ParseException("Unknow format of Cell 0 row " + i, 1);
-
-            // iterate on cells
-            for (int j = 0; j < series.size(); j++) {
-                Cell cell = row.getCell(j);
-                // if at cell numeric value
-                if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                    series.get(j).add(demain, cell.getNumericCellValue());
-                }
-                else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                    String str = cell.getStringCellValue().replace(',','.');
-                    if (str.equals("")) series.get(j).add(demain,null);
-                    else series.get(j).add(demain, Double.parseDouble(str));
-                }
-                else series.get(j).add(demain, null);
-            }
+        else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            if (!cell.getStringCellValue().equals(""))
+                return Double.parseDouble(cell.getStringCellValue().replace(',', '.'));
+            else
+                return null;
         }
-        return series;
+        else return null;
     }
 
     private static ArrayList<MyXYSeries> filterSeries(ArrayList<MyXYSeries> series, boolean full) {
