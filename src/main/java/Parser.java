@@ -134,12 +134,20 @@ class Parser {
                     break;
                 case "04.103.020" :
                     tmp.add(item);
-                    item.setKey("ГС2 давление");
+                    item.setKey("давление ГС2");
+                    break;
+                case "04.802.019" :
+                    tmp.add(item);
+                    item.setKey("давление напор");
+                    break;
+                case "04.802.020" :
+                    tmp.add(item);
+                    item.setKey("давление слив");
                     break;
 // output from 1 channel
                 case "07.031.001" :
                     tmp.add(item);
-                    item.setKey("Угол ПОШ 1 канал");
+                    item.setKey("ПОШ угол 1 канал");
                     break;
                 case "07.031.002" :
                     tmp.add(item);
@@ -155,7 +163,7 @@ class Parser {
                     break;
                 case "07.031.005" :
                     tmp.add(item);
-                    item.setKey("NWS 1 канал");
+                    item.setKey("режим УПРАВ 1 канал");
                     break;
                 case "07.031.006" :
                     tmp.add(item);
@@ -167,19 +175,19 @@ class Parser {
                     break;
                 case "07.031.008" :
                     tmp.add(item);
-                    item.setKey("отказ лев РР 1 канал");
+                    item.setKey("отказ РР лев 1 канал");
                     break;
                 case "07.031.009" :
                     tmp.add(item);
-                    item.setKey("отказ прав РР 1 канал");
+                    item.setKey("отказ РР прав 1 канал");
                     break;
                 case "07.031.010" :
                     tmp.add(item);
-                    item.setKey("отказ датчика лев РР 1 канал");
+                    item.setKey("отказ РР лев дат 1 канал");
                     break;
                 case "07.031.011" :
                     tmp.add(item);
-                    item.setKey("отказ датчика прав РР 1 канал");
+                    item.setKey("отказ РР прав дат 1 канал");
                     break;
                 case "07.031.012" :
                     tmp.add(item);
@@ -199,19 +207,19 @@ class Parser {
                     break;
                 case "07.031.016" :
                     tmp.add(item);
-                    item.setKey("в право 1 канал");
+                    item.setKey("ПОШ в право 1 канал");
                     break;
                 case "07.031.017" :
                     tmp.add(item);
-                    item.setKey("в лево 1 канал");
+                    item.setKey("ПОШ в лево 1 канал");
                     break;
                 case "07.031.018" :
                     tmp.add(item);
-                    item.setKey("удержание в 0 1 канал");
+                    item.setKey("режим УДЕР в 0 1 канал");
                     break;
                 case "07.031.019" :
                     tmp.add(item);
-                    item.setKey("уборка шасси 1 канал");
+                    item.setKey("режим УБОРКА 1 канал");
                     break;
                 case "07.031.020" :
                     tmp.add(item);
@@ -219,7 +227,7 @@ class Parser {
                     break;
                 case "07.031.021" :
                     tmp.add(item);
-                    item.setKey("педали 1 канал");
+                    item.setKey("педали РН 1 канал");
                     break;
                 case "07.031.022" :
                     tmp.add(item);
@@ -227,27 +235,27 @@ class Parser {
                     break;
                 case "07.031.023" :
                     tmp.add(item);
-                    item.setKey("отказ 1 КСУ 1 канал");
+                    item.setKey("отказ КСУ-1 1 канал");
                     break;
                 case "07.031.024" :
                     tmp.add(item);
-                    item.setKey("отказ 2 КСУ 1 канал");
+                    item.setKey("отказ КСУ-2 1 канал");
                     break;
                 case "07.031.025" :
                     tmp.add(item);
-                    item.setKey("отказ 3 КСУ 1 канал");
+                    item.setKey("отказ КСУ-3 1 канал");
                     break;
                 case "07.031.026" :
                     tmp.add(item);
-                    item.setKey("отказ 4 КСУ 1 канал");
+                    item.setKey("отказ КСУ-4 1 канал");
                     break;
                 case "07.031.027" :
                     tmp.add(item);
-                    item.setKey("отказ 1 СУОСО 1 канал");
+                    item.setKey("отказ СУОСО-1 1 канал");
                     break;
                 case "07.031.028" :
                     tmp.add(item);
-                    item.setKey("отказ 2 СУОСО 1 канал");
+                    item.setKey("отказ СУОСО-2 1 канал");
                     break;
                 case "07.031.029" :
                     tmp.add(item);
@@ -264,6 +272,7 @@ class Parser {
                 case "07.031.032" :
                     tmp.add(item);
                     item.setKey("отказ ЭГРП25-700 прав 1 канал");
+                    break;
                 case "07.031.033" :
                     tmp.add(item);
                     item.setKey("блок РР по скорости 1 канал");
@@ -271,20 +280,23 @@ class Parser {
                 case "07.031.034" :
                     tmp.add(item);
                     item.setKey("отказ КК 1 канал");
+                    break;
                 case "07.031.035" :
                     tmp.add(item);
-                    item.setKey("отказ 1 пит 1 канал");
+                    item.setKey("отказ питание-1 1 канал");
                     break;
                 case "07.031.036" :
                     tmp.add(item);
-                    item.setKey("отказ 2 пит 1 канал");
+                    item.setKey("отказ питание-2 1 канал");
+                    break;
                 case "07.031.037" :
                     tmp.add(item);
-                    item.setKey("отказ 3 пит 1 канал");
+                    item.setKey("отказ питание-3 1 канал");
                     break;
                 case "07.031.038" :
                     tmp.add(item);
-                    item.setKey("отказ 4 пит 1 канал");
+                    item.setKey("отказ питание-4 1 канал");
+                    break;
                 case "07.031.039" :
                     tmp.add(item);
                     item.setKey("требуется ТО 1 канал");
@@ -292,7 +304,7 @@ class Parser {
 //output form 2 channel
                 case "07.032.001" :
                     tmp.add(item);
-                    item.setKey("Угол ПОШ 2 канал");
+                    item.setKey("ПОШ угол 2 канал");
                     break;
                 case "07.032.002" :
                     tmp.add(item);
@@ -308,7 +320,7 @@ class Parser {
                     break;
                 case "07.032.005" :
                     tmp.add(item);
-                    item.setKey("NWS 2 канал");
+                    item.setKey("режим УПРАВ 2 канал");
                     break;
                 case "07.032.006" :
                     tmp.add(item);
@@ -320,19 +332,19 @@ class Parser {
                     break;
                 case "07.032.008" :
                     tmp.add(item);
-                    item.setKey("отказ лев РР 2 канал");
+                    item.setKey("отказ РР лев 2 канал");
                     break;
                 case "07.032.009" :
                     tmp.add(item);
-                    item.setKey("отказ прав РР 2 канал");
+                    item.setKey("отказ РР прав 2 канал");
                     break;
                 case "07.032.010" :
                     tmp.add(item);
-                    item.setKey("отказ датчика лев РР 2 канал");
+                    item.setKey("отказ РР лев дат 2 канал");
                     break;
                 case "07.032.011" :
                     tmp.add(item);
-                    item.setKey("отказ датчика прав РР 2 канал");
+                    item.setKey("отказ РР прав дат 2 канал");
                     break;
                 case "07.032.012" :
                     tmp.add(item);
@@ -352,19 +364,19 @@ class Parser {
                     break;
                 case "07.032.016" :
                     tmp.add(item);
-                    item.setKey("в право 2 канал");
+                    item.setKey("ПОШ в право 2 канал");
                     break;
                 case "07.032.017" :
                     tmp.add(item);
-                    item.setKey("в лево 2 канал");
+                    item.setKey("ПОШ в лево 2 канал");
                     break;
                 case "07.032.018" :
                     tmp.add(item);
-                    item.setKey("удержание в 0 2 канал");
+                    item.setKey("режим УДЕР в 0 2 канал");
                     break;
                 case "07.032.019" :
                     tmp.add(item);
-                    item.setKey("уборка шасси 2 канал");
+                    item.setKey("режим УБОРКА 2 канал");
                     break;
                 case "07.032.020" :
                     tmp.add(item);
@@ -372,7 +384,7 @@ class Parser {
                     break;
                 case "07.032.021" :
                     tmp.add(item);
-                    item.setKey("педали 2 канал");
+                    item.setKey("педали РН 2 канал");
                     break;
                 case "07.032.022" :
                     tmp.add(item);
@@ -380,27 +392,27 @@ class Parser {
                     break;
                 case "07.032.023" :
                     tmp.add(item);
-                    item.setKey("отказ 1 КСУ 2 канал");
+                    item.setKey("отказ КСУ-1 2 канал");
                     break;
                 case "07.032.024" :
                     tmp.add(item);
-                    item.setKey("отказ 2 КСУ 2 канал");
+                    item.setKey("отказ КСУ-2 2 канал");
                     break;
                 case "07.032.025" :
                     tmp.add(item);
-                    item.setKey("отказ 3 КСУ 2 канал");
+                    item.setKey("отказ КСУ-3 2 канал");
                     break;
                 case "07.032.026" :
                     tmp.add(item);
-                    item.setKey("отказ 4 КСУ 2 канал");
+                    item.setKey("отказ КСУ-4 2 канал");
                     break;
                 case "07.032.027" :
                     tmp.add(item);
-                    item.setKey("отказ 1 СУОСО 2 канал");
+                    item.setKey("отказ СУОСО-1 2 канал");
                     break;
                 case "07.032.028" :
                     tmp.add(item);
-                    item.setKey("отказ 2 СУОСО 2 канал");
+                    item.setKey("отказ СУОСО-2 2 канал");
                     break;
                 case "07.032.029" :
                     tmp.add(item);
@@ -417,6 +429,7 @@ class Parser {
                 case "07.032.032" :
                     tmp.add(item);
                     item.setKey("отказ ЭГРП25-700 прав 2 канал");
+                    break;
                 case "07.032.033" :
                     tmp.add(item);
                     item.setKey("блок РР по скорости 2 канал");
@@ -424,20 +437,23 @@ class Parser {
                 case "07.032.034" :
                     tmp.add(item);
                     item.setKey("отказ КК 2 канал");
+                    break;
                 case "07.032.035" :
                     tmp.add(item);
-                    item.setKey("отказ 1 пит 2 канал");
+                    item.setKey("отказ питание-1 2 канал");
                     break;
                 case "07.032.036" :
                     tmp.add(item);
-                    item.setKey("отказ 2 пит 2 канал");
+                    item.setKey("отказ питание-2 2 канал");
+                    break;
                 case "07.032.037" :
                     tmp.add(item);
-                    item.setKey("отказ 3 пит 2 канал");
+                    item.setKey("отказ питание-3 2 канал");
                     break;
                 case "07.032.038" :
                     tmp.add(item);
-                    item.setKey("отказ 4 пит 2 канал");
+                    item.setKey("отказ питание-4 2 канал");
+                    break;
                 case "07.032.039" :
                     tmp.add(item);
                     item.setKey("требуется ТО 2 канал");
@@ -445,35 +461,35 @@ class Parser {
 // input message from SUOSO
                 case "14.02.112.001" :
                     tmp.add(item);
-                    item.setKey("1 СУОСО исправность ГС2");
+                    item.setKey("СУОСО-1 исправность ГС2");
                     break;
                 case "14.02.211.001" :
                     tmp.add(item);
-                    item.setKey("2 СУОСО исправность ГС2");
+                    item.setKey("СУОСО-2 исправность ГС2");
                     break;
                 case "07.112.038" :
                     tmp.add(item);
-                    item.setKey("1 СУОСО ЛООШ обжата");
+                    item.setKey("СУОСО-1 ЛООШ обжата");
                     break;
                 case "07.211.038" :
                     tmp.add(item);
-                    item.setKey("1 СУОСО ЛООШ обжата");
+                    item.setKey("СУОСО-2 ЛООШ обжата");
                     break;
                 case "07.112.039" :
                     tmp.add(item);
-                    item.setKey("1 СУОСО ПООШ обжата");
+                    item.setKey("СУОСО-1 ПООШ обжата");
                     break;
                 case "07.211.039" :
                     tmp.add(item);
-                    item.setKey("1 СУОСО ПООШ обжата");
+                    item.setKey("СУОСО-2 ПООШ обжата");
                     break;
                 case "07.112.040" :
                     tmp.add(item);
-                    item.setKey("1 СУОСО ПОШ обжатие");
+                    item.setKey("СУОСО-1 ПОШ обжатие");
                     break;
                 case "07.211.040" :
                     tmp.add(item);
-                    item.setKey("2 СУОСО ПОШ обжатие");
+                    item.setKey("СУОСО-2 ПОШ обжатие");
                     break;
 
                 default:
