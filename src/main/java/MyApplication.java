@@ -2,7 +2,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.SamplingXYLineRenderer;
 import org.jfree.data.Range;
@@ -18,45 +17,54 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MyApplication extends JFrame implements ActionListener{
-    private ArrayList<XYSeries> seriesArrayList;
     private ArrayList<XYPlot> plotArrayList;
-    private JFreeChart chart;
     private FileDialog dialog;
     private CombinedDomainXYPlot plots;
-    private ChartPanel center;
     private JPanel eastPanel;
     private JLabel fileName;
     private JCheckBox fullSet;
     private Parser parser;
-    private ArrayList<MyXYSeries> mySeriesArrayList;
 
+    //------------------------------------------------------------------------------------------------------------------
+    //Constructor
+    //------------------------------------------------------------------------------------------------------------------
     private MyApplication(){
         //init
         super();
         plotArrayList = new ArrayList<>();
-        plots = new CombinedDomainXYPlot();
-        chart = new JFreeChart(plots);
-        dialog = new FileDialog(this, "MS-21 shit", FileDialog.LOAD);
-        center = new ChartPanel(chart);
-        center.setRangeZoomable(false);
-        eastPanel = new JPanel();
-        eastPanel.setLayout(new BoxLayout(eastPanel,BoxLayout.Y_AXIS));
         parser = null;
 
         //main panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
+
         //add north panel
+        dialog = new FileDialog(this, "MS-21 shit", FileDialog.LOAD);
         mainPanel.add(getNorthPanel(), BorderLayout.NORTH);
-        //add central panel
-        JScrollPane pane = new JScrollPane(center);
-        pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        mainPanel.add(pane, BorderLayout.CENTER);
+
+        //central panel
+        //main domain plot
+        plots = new CombinedDomainXYPlot();
+        //create chart
+        JFreeChart chart = new JFreeChart(plots);
+        //delete all legend from chart
+        chart.removeLegend();
+        //create chart panel
+        ChartPanel center = new ChartPanel(chart);
+        //disable zoom at Y-axis
+        center.setRangeZoomable(false);
+        //add to main panel
+        mainPanel.add(center, BorderLayout.CENTER);
+
         //create and add east panel
-        pane = new JScrollPane(eastPanel);
+        eastPanel = new JPanel();
+        eastPanel.setLayout(new BoxLayout(eastPanel,BoxLayout.Y_AXIS));
+        JScrollPane pane = new JScrollPane(eastPanel);
+        //set scroll policy
         pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        //add to main panel
         mainPanel.add(pane, BorderLayout.EAST);
+
         //add main panel to Frame
         this.add(mainPanel);
 
@@ -67,13 +75,17 @@ public class MyApplication extends JFrame implements ActionListener{
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width/2 - this.getWidth()/2, dim.height/2 - this.getHeight()/2);
     }
-
+    //------------------------------------------------------------------------------------------------------------------
+    //main function Application
+    //------------------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         MyApplication myApplication = new MyApplication();
         myApplication.setVisible(true);
     }
 
-
+    //------------------------------------------------------------------------------------------------------------------
+    //create North panel
+    //------------------------------------------------------------------------------------------------------------------
     private JPanel getNorthPanel() {
         JPanel north = new JPanel();
         north.setLayout(new FlowLayout());
@@ -86,17 +98,23 @@ public class MyApplication extends JFrame implements ActionListener{
         north.add(fullSet);
         return north;
     }
-
+    //------------------------------------------------------------------------------------------------------------------
+    //add check box with series name to East panel
+    //------------------------------------------------------------------------------------------------------------------
     private void fillEastPanel(JPanel panel) {
         for (XYPlot plot : plotArrayList) {
             MyCheckBox checkBox = new MyCheckBox(plot);
             checkBox.addActionListener(this);
+            checkBox.setToolTipText(((XYSeriesCollection)plot.getDataset()).getSeries(0).getDescription());
             panel.add(checkBox);
         }
         panel.revalidate();
         panel.repaint();
     }
 
+    //------------------------------------------------------------------------------------------------------------------
+    //action application for events
+    //------------------------------------------------------------------------------------------------------------------
     public void actionPerformed(ActionEvent actionEvent) {
         //event for check Boxes
         if (actionEvent.getSource().getClass() == MyCheckBox.class)
@@ -135,45 +153,40 @@ public class MyApplication extends JFrame implements ActionListener{
             }
         }
     }
-
+    //------------------------------------------------------------------------------------------------------------------
+    //convert series to plot add plot to PlotList and setting axis
+    //------------------------------------------------------------------------------------------------------------------
     private ArrayList<XYPlot> seriesToPlots(ArrayList<MyXYSeries> series) {
         ArrayList<XYPlot> plotsSet = new ArrayList<>();
+        //for each series
         for (XYSeries item : series) {
+            //create new plot
             XYPlot plot = new XYPlot();
+            //set series as Dataset to Plot
             plot.setDataset(new XYSeriesCollection(item));
 
-            NumberAxis axis = new NumberAxis();
+            //setting axis
+            //crete axis with name series
+            NumberAxis axis = new NumberAxis((String) item.getKey());
             axis.setAutoRangeIncludesZero(false);
             axis.setDefaultAutoRange(new Range(item.getMinY(), item.getMaxY()));
-            if (item.getMaxY() - item.getMinY() <= 1.0) {
-                axis.setLowerMargin(0.1);
-                axis.setUpperMargin(0.1);
-            }
             plot.setRangeAxis(axis);
+
+            //setting renders
             SamplingXYLineRenderer renderer = new SamplingXYLineRenderer();
             renderer.setSeriesStroke(0,new BasicStroke(2.0f));
             plot.setRenderer(renderer);
             plotsSet.add(plot);
+
         }
+        // setting Domain axis
         if(series.size() > 0) {
             NumberAxis axis = (NumberAxis) plots.getDomainAxis();
             axis.setAutoRangeIncludesZero(false);
             axis.setDefaultAutoRange(new Range(series.get(0).getMinX(), series.get(0).getMaxX()));
         }
+        //return List of Plots
         return plotsSet;
     }
 
-    //temp
-    private ArrayList<XYSeries> setTestSeries() {
-        XYSeries x2 = new XYSeries("x^2");
-        XYSeries x3 = new XYSeries("x^3");
-        for (int i =10 ; i < 21; i++) {
-            x2.add(i, i * i);
-            x3.add(i, i * i * i);
-        }
-        ArrayList<XYSeries> arrayList = new ArrayList<>();
-        arrayList.add(x2);
-        arrayList.add(x3);
-        return arrayList;
-    }
 }
