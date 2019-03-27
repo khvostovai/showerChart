@@ -37,23 +37,27 @@ class Parser {
     }
 
     public ArrayList<MyXYSeries> parseTitle(boolean fullSet) throws ParseException {
-        //get firs sheet
-        Sheet sheet = wb.getSheetAt(0);
-
-        // add title series to data set
-        Row seriesTitle = sheet.getRow(2);
-
-        for (int i = 0; i < seriesTitle.getLastCellNum(); i++) {
-            Cell cell = seriesTitle.getCell(i);
-            if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                series.add(new MyXYSeries(cell.getStringCellValue(), i));
-            } else throw new ParseException("Can't read title of Series " + cell.getColumnIndex(), 1);
-            // empty cell
-            if (cell.getStringCellValue().equals(""))
+        int countColumn = sheet.getRow(2).getLastCellNum();
+        for (int i = 0; i < countColumn; i++) {
+            String str = parseStringCellValue(2, i);
+            if(str == null || str.equals(""))
                 break;
+            else{
+                MyXYSeries ser = new MyXYSeries(str, i);
+                ser.setDescription(parseStringCellValue(3,i));
+                series.add(ser);
+            }
         }
 
         return filterSeries(series, fullSet);
+    }
+
+    private String parseStringCellValue(int row, int col) {
+        Cell cell = sheet.getRow(row).getCell(col);
+        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            return cell.getStringCellValue();
+        }
+        return null;
     }
 
     public void updateMyXYSeries(MyXYSeries series) throws ParseException {
